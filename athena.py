@@ -3,12 +3,6 @@
 
 """Python module to query data available in AWS Athena.
 
-Can import to other Python scripts where SVN is available like:
-
-    import sys
-    sys.path.append('/home/ubuntu/svn/ds/bi/pyathena')
-    from athena import Athena
-
 Can also use as a command line utility:
 
     $ query="SELECT * FROM tbl;"
@@ -18,18 +12,18 @@ To include header in output:
 
     # python athena.py "$query" --header > results.tsv
 
-TODO:
-1. athena.query() needs error handling/checking during polling!
+TODO
+----
+- athena.query() needs error handling/checking during polling!
 
 """
 
 import argparse
-import boto3
 import csv
-import os
 import sys
 import time
 
+import boto3
 
 class Athena(object):
     """ Interface to AWS Athena, establishing settings, and allows querying."""
@@ -52,11 +46,12 @@ class Athena(object):
             try:
                 self.client.get_query_results(QueryExecutionId=query_id)
                 break
-            except:
+            except Exception:
                 time.sleep(10)
         return AthenaResult(self.client, self.database, query_id, self.s3_path)
 
     def repair_table(self, table):
+        """ Repairs Athena table."""
         query = 'MSCK REPAIR TABLE %s' % table
         self.query(query)
 
